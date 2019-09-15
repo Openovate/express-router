@@ -1,0 +1,36 @@
+{
+  "name": "express-router",
+  "version": "0.0.1",
+  "description": "Express routing with priority settings.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Openovate/express-router.git"
+  },
+  "keywords": [],
+  "author": "Christian Blanquera <cblanquera@openovate.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Openovate/express-router/issues"
+  },
+  "homepage": "https://github.com/Openovate/express-router#readme",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "@openovate/jsm": "0.0.1",
+    "formidable": "^1.2.1",
+    "methods": "^1.1.2",
+    "path-to-regexp": "^3.1.0",
+    "querystrings": "^0.4.0"
+  },
+  "devDependencies": {
+    "express": "^4.17.1",
+    "jest": "^24.8.0",
+    "node-fetch": "^2.6.0"
+  }
+}
