@@ -120,7 +120,7 @@ function createRouter(config = {}) {
   }
 
   //merge router methods
-  const router = new Router();
+  const router = new Router;
   const methods = getMethods(router);
 
   Object.keys(methods).forEach(method => {

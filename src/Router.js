@@ -116,51 +116,6 @@ class Router extends EventEmitter {
   }
 
   /**
-   * Shortcut for middleware
-   *
-   * @param {Function} [callback]
-   * @param {Integer} [priority = 1]
-   *
-   * @return {Framework}
-   */
-  use(callback) {
-    //if there are more than 2 arguments...
-    if (arguments.length > 1) {
-      //loop through each argument as callback
-      Array.from(arguments).forEach((callback, index) => {
-        this.use(callback);
-      });
-
-      return this;
-    }
-
-    //if the callback is an array
-    if (Array.isArray(callback)) {
-      this.use(...callback);
-      return this;
-    }
-
-    //if the callback is an EventEmitter
-    if (callback instanceof EventEmitter) {
-      Object.keys(callback.listeners).forEach(event => {
-        //each event is an array of objects
-        callback.listeners[event].forEach(listener => {
-          this.on(event, listener.callback, listener.priority);
-        });
-
-        //lastly link the metas
-        callback.meta = this.meta;
-      });
-
-      return this;
-    }
-
-    //anything else?
-
-    return this;
-  }
-
-  /**
    * Emits the path and method to the event emitter
    *
    * @param {String} method
