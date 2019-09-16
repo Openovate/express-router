@@ -51,7 +51,7 @@ test('rest test', async() => {
     res.rest.set('results', [1, 2, 3])
   });
 
-  router.on('disconnect', (req, res) => {
+  router.on('response', (req, res) => {
     server.close();
   })
 
@@ -80,6 +80,26 @@ test('rest test', async() => {
   expect(rest.results[0]).toBe(1);
   expect(rest.results[1]).toBe(2);
   expect(rest.results[2]).toBe(3);
+});
+
+test('content test', async() => {
+  const router = Router();
+
+  router.get('/some/path', (req, res) => {
+    res.content.set('Hello World')
+  });
+
+  router.on('response', (req, res) => {
+    server.close();
+  })
+
+  //start http server
+  const server = http.createServer(router);
+  server.listen(3000);
+
+  const response = await fetch('http://127.0.0.1:3000/some/path');
+
+  expect(await response.text()).toBe('Hello World');
 });
 
 test('error handling test', async() => {
@@ -139,7 +159,7 @@ test('request test', async() => {
     const results = await router.request('do something', req, res);
   });
 
-  router.on('disconnect', (req, res) => {
+  router.on('response', (req, res) => {
     server.close();
   })
 

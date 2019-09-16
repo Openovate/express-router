@@ -84,13 +84,17 @@ router.route('/some/other').get((req, res) => {
 });
 ```
 
-### Introducing stage and rest
+### Introducing stage, rest and content
 
 `stage` is a combination of the URL query, form post and URL path parameters.
-`rest` is different than `res.json()` where it gives other routes an opporitunity
+`rest` is different than `res.json()` where it gives other routes an opportunity
 to add on to the `rest` data before sending it out. `stage` and `rest` use
 `Registry` from the JSM library. For a quick study, see:
 [@openovate/jsm#registry-usage](https://github.com/Openovate/jsm#registry-usage)
+
+The rationale for `content` is the same as `rest` where it is different than
+`res.write()` and `res.send()` where it gives other routes an opportunity
+to add on to the `content` data before sending it out.
 
 ```js
 // -> GET /some/path?foo[bar][]=zoo
@@ -104,6 +108,9 @@ router.get('/some/path', async (req, res) => {
   res.rest
     .set('error', false)
     .set('results', foo);
+
+  // ... or ...
+  res.content.set(foo);
 });
 ```
 

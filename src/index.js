@@ -4,6 +4,7 @@ const Router = require('./Router');
 const IncomingMessage = require('./http/IncomingMessage');
 const ServerResponse = require('./http/ServerResponse');
 
+const ContentTrait = require('./payload/content');
 const RestTrait = require('./payload/rest');
 const ServerTrait = require('./payload/server');
 const StageTrait = require('./payload/stage');
@@ -11,6 +12,7 @@ const StageTrait = require('./payload/stage');
 function createRouter(config = {}) {
   //merge config with defaults
   config = Object.assign({
+    content: true,
     server: true,
     stage: true,
     rest: true
@@ -54,8 +56,8 @@ function createRouter(config = {}) {
     const method = req.method.toUpperCase();
     const event = method + ' ' + path;
 
-    //trigger connect
-    if (!await step('connect', router, req, res, next)) {
+    //trigger request
+    if (!await step('request', router, req, res, next)) {
       //if the request exits, then stop
       return;
     }
@@ -68,32 +70,51 @@ function createRouter(config = {}) {
 
     //interpret
 
-    //if no rest property or response already sent
-    if (!res.hasOwnProperty('rest') || res._headerSent) {
-      //disconnect
-      await step('disconnect', router, req, res, next)
+    //if response already sent
+    if (res._headerSent) {
+      await step('response', router, req, res, next);
       //do nothing else
       return;
     }
 
-    const rest = res.rest.get();
+    //content > rest
 
-    //if empty rest
-    if (!Object.keys(rest).length) {
-      //disconnect
-      await step('disconnect', router, req, res, next)
+    //if there is content
+    if (res.content && res.content.has()) {
+      //set the status code if not set
+      res.statusCode = res.statusCode || 200;
+      res.statusMessage = res.statusMessage || 'OK';
+      //set the default content type to html
+      if (!res.hasHeader('content-type')) {
+        res.setHeader('Content-Type', 'text/html');
+      }
+
+      res.write(res.content.get().toString());
+      res.end();
+
+      await step('response', router, req, res, next)
       //do nothing else
       return;
     }
 
-    res.statusCode = 200;
-    res.statusMessage = 'OK';
+    //if there is rest
+    if (res.rest && Object.keys(res.rest.get()).length) {
+      const rest = res.rest.get();
 
-    res.setHeader('Content-Type', 'text/json');
-    res.write(JSON.stringify(rest, null, 2));
-    res.end();
+      //set the status code if not set
+      res.statusCode = res.statusCode || 200;
+      res.statusMessage = res.statusMessage || 'OK';
 
-    await step('disconnect', router, req, res, next)
+      res.setHeader('Content-Type', 'text/json');
+      res.write(JSON.stringify(rest, null, 2));
+      res.end();
+
+      await step('response', router, req, res, next)
+    }
+
+    //we are here?
+    //then let it stall like how http works anyways
+    // also dont trigger response since it did not actually respond.
   }
 
   //merge router methods
@@ -109,6 +130,7 @@ function createRouter(config = {}) {
   return HttpRouter;
 };
 
+createRouter.ContentTrait = ContentTrait;
 createRouter.RestTrait = RestTrait;
 createRouter.ServerTrait = ServerTrait;
 createRouter.StageTrait = StageTrait;
@@ -139,6 +161,12 @@ const nativeMethods = [
  * @param {ServerResponse} res
  */
 async function configurePayload(config, req, res) {
+  //if they want content trait
+  if (config.content) {
+    //add content to res
+    ContentTrait(req, res)
+  }
+
   //if they want rest trait
   if (config.rest) {
     //add rest to res
@@ -212,12 +240,12 @@ function getMethods(definition) {
  *
  * @return {Boolean} whether its okay to continue
  */
-async function step(event, router, req, res, next) {
-  let status = EventEmitter.STATUS_OK, error = null;
+async function step(event, emitter, req, res, next) {
+  let status = EventEmitter.STATUS_OK;
 
   try {
     //emit a connect event
-    status = await router.emit(event, req, res);
+    status = await emitter.emit(event, req, res);
   } catch(err) {
     //if there is an error
     next(err);
