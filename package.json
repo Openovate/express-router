@@ -1,12 +1,15 @@
 {
   "name": "@openovate/express-router",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Express routing with priority settings.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Openovate/express-router.git"
   },
-  "keywords": ["express", "router"],
+  "keywords": [
+    "express",
+    "router"
+  ],
   "author": "Christian Blanquera <cblanquera@openovate.com>",
   "license": "MIT",
   "bugs": {
@@ -18,7 +21,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@openovate/jsm": "0.0.1",
+    "@openovate/jsm": "^0.0.3",
     "formidable": "^1.2.1",
     "methods": "^1.1.2",
     "path-to-regexp": "^3.1.0",
