@@ -41,7 +41,7 @@ class EventEmitter extends EventEmitterJsm {
     if (callback instanceof EventEmitterJsm) {
       Object.keys(callback.listeners).forEach(event => {
         //each event is an array of objects
-        callback.listeners[event].forEach(listener => {
+        callback.listeners[event].queue.forEach(listener => {
           this.on(event, listener.callback, listener.priority);
         });
 

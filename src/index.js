@@ -19,7 +19,7 @@ function createRouter(config = {}) {
   }, config);
 
   //configure the payloads
-  configurePayload(
+  helpers.configurePayload(
     config,
     IncomingMessage.prototype,
     ServerResponse.prototype
@@ -27,7 +27,7 @@ function createRouter(config = {}) {
 
   async function HttpRouter(req, res, next) {
     //configure the payloads
-    await configurePayload(config, req, res);
+    await helpers.configurePayload(config, req, res);
 
     //next could be from express, but if not
     if (typeof next === 'undefined') {
@@ -57,13 +57,13 @@ function createRouter(config = {}) {
     const event = method + ' ' + path;
 
     //trigger request
-    if (!await step('request', router, req, res, next)) {
+    if (!await helpers.step('request', router, req, res, next)) {
       //if the request exits, then stop
       return;
     }
 
     //trigger main event
-    if (!await step(event, router, req, res, next)) {
+    if (!await helpers.step(event, router, req, res, next)) {
       //if the request exits, then stop
       return;
     }
@@ -72,7 +72,7 @@ function createRouter(config = {}) {
 
     //if response already sent
     if (res._headerSent) {
-      await step('response', router, req, res, next);
+      await helpers.step('response', router, req, res, next);
       //do nothing else
       return;
     }
@@ -89,10 +89,18 @@ function createRouter(config = {}) {
         res.setHeader('Content-Type', 'text/html');
       }
 
-      res.write(res.content.get().toString());
-      res.end();
+      const content = res.content.get();
 
-      await step('response', router, req, res, next);
+      //if streamable
+      if (typeof content.pipe === 'function') {
+        //pipe it through
+        content.pipe(res);
+      } else {
+        res.write(content.toString());
+        res.end();
+      }
+
+      await helpers.step('response', router, req, res, next);
       //do nothing else
       return;
     }
@@ -109,7 +117,7 @@ function createRouter(config = {}) {
       res.write(JSON.stringify(rest, null, 2));
       res.end();
 
-      await step('response', router, req, res, next);
+      await helpers.step('response', router, req, res, next);
       //do nothing else
       return;
     }
@@ -121,15 +129,140 @@ function createRouter(config = {}) {
 
   //merge router methods
   const router = new Router;
-  const methods = getMethods(router);
+  const methods = helpers.getMethods(router);
 
   Object.keys(methods).forEach(method => {
     HttpRouter[method] = router[method].bind(router);
   });
 
+  HttpRouter.config = config;
   HttpRouter.router = router;
 
   return HttpRouter;
+};
+
+const helpers = {
+  /**
+   * Native JS methods we should ignore
+   */
+  nativeMethods: [
+    'constructor',
+    '__proto__',
+    '__defineGetter__',
+    '__defineSetter__',
+    'hasOwnProperty',
+    '__lookupGetter__',
+    '__lookupSetter__',
+    'isPrototypeOf',
+    'propertyIsEnumerable',
+    'toString',
+    'valueOf',
+    'toLocaleString'
+  ],
+
+  /**
+   * Returns where the methods are defined
+   *
+   * @param {Object} definition
+   *
+   * @return {Object}
+   */
+  getMethods(definition) {
+    const prototype = {};
+
+    if (typeof definition === 'function') {
+      definition = definition.prototype;
+    }
+
+    //for short hand functions ie. () => {}, there is no prototype
+    if (!definition) {
+      return prototype;
+    }
+
+    Object.getOwnPropertyNames(definition).forEach(property => {
+      if(this.nativeMethods.indexOf(property) !== -1) {
+        return;
+      }
+
+      const descriptor = Object.getOwnPropertyDescriptor(definition, property);
+
+      if (typeof descriptor.value === 'function') {
+        prototype[property] = definition[property];
+        return;
+      }
+
+      if (typeof descriptor.get === 'function'
+        || typeof descriptor.set === 'function'
+      ) {
+        Object.defineProperty(prototype, property, descriptor);
+      }
+    });
+
+    return Object.assign(prototype, this.getMethods(
+      Object.getPrototypeOf(definition)
+    ));
+  },
+
+  /**
+   * Adds traits to Request and Response payloads
+   *
+   * @param {Object} config
+   * @param {IncomingMessage} req
+   * @param {ServerResponse} res
+   */
+  async configurePayload(config, req, res) {
+    //if they want content trait
+    if (config.content) {
+      //add content to res
+      ContentTrait(req, res)
+    }
+
+    //if they want rest trait
+    if (config.rest) {
+      //add rest to res
+      RestTrait(req, res)
+    }
+
+    //if they want server trait
+    if (config.server) {
+      //add server to req
+      ServerTrait(req, res)
+    }
+
+    //if they want stage trait
+    if (config.stage) {
+      //add stage to req
+      await StageTrait(req, res)
+    }
+  },
+
+  /**
+   * Runs step event and interprets
+   *
+   * @param {String} event
+   * @param {Router} router
+   * @param {IncomingMessage} request
+   * @param {ServerResponse} response
+   * @param {Function} next
+   *
+   * @return {Boolean} whether its okay to continue
+   */
+  async step(event, emitter, req, res, next) {
+    let status = EventEmitter.STATUS_OK;
+
+    try {
+      //emit a connect event
+      status = await emitter.emit(event, req, res);
+    } catch(err) {
+      //if there is an error
+      next(err);
+      //dont continue
+      return false;
+    }
+
+    //if the status was incomplete (308)
+    return status !== EventEmitter.STATUS_INCOMPLETE;
+  }
 };
 
 createRouter.ContentTrait = ContentTrait;
@@ -139,125 +272,7 @@ createRouter.StageTrait = StageTrait;
 createRouter.EventEmitter = EventEmitter;
 createRouter.IncomingMessage = IncomingMessage;
 createRouter.ServerResponse = ServerResponse;
-
-const nativeMethods = [
-  'constructor',
-  '__proto__',
-  '__defineGetter__',
-  '__defineSetter__',
-  'hasOwnProperty',
-  '__lookupGetter__',
-  '__lookupSetter__',
-  'isPrototypeOf',
-  'propertyIsEnumerable',
-  'toString',
-  'valueOf',
-  'toLocaleString'
-];
-
-/**
- * Adds traits to Request and Response payloads
- *
- * @param {Object} config
- * @param {IncomingMessage} req
- * @param {ServerResponse} res
- */
-async function configurePayload(config, req, res) {
-  //if they want content trait
-  if (config.content) {
-    //add content to res
-    ContentTrait(req, res)
-  }
-
-  //if they want rest trait
-  if (config.rest) {
-    //add rest to res
-    RestTrait(req, res)
-  }
-
-  //if they want server trait
-  if (config.server) {
-    //add server to req
-    ServerTrait(req, res)
-  }
-
-  //if they want stage trait
-  if (config.stage) {
-    //add stage to req
-    await StageTrait(req, res)
-  }
-}
-
-/**
- * Returns where the methods are defined
- *
- * @param {Object} definition
- *
- * @return {Object}
- */
-function getMethods(definition) {
-  const prototype = {};
-
-  if (typeof definition === 'function') {
-    definition = definition.prototype;
-  }
-
-  //for short hand functions ie. () => {}, there is no prototype
-  if (!definition) {
-    return prototype;
-  }
-
-  Object.getOwnPropertyNames(definition).forEach(property => {
-    if(nativeMethods.indexOf(property) !== -1) {
-      return;
-    }
-
-    const descriptor = Object.getOwnPropertyDescriptor(definition, property);
-
-    if (typeof descriptor.value === 'function') {
-      prototype[property] = definition[property];
-      return;
-    }
-
-    if (typeof descriptor.get === 'function'
-      || typeof descriptor.set === 'function'
-    ) {
-      Object.defineProperty(prototype, property, descriptor);
-    }
-  });
-
-  return Object.assign(prototype, getMethods(
-    Object.getPrototypeOf(definition)
-  ));
-}
-
-/**
- * Runs step event and interprets
- *
- * @param {String} event
- * @param {Router} router
- * @param {IncomingMessage} request
- * @param {ServerResponse} response
- * @param {Function} next
- *
- * @return {Boolean} whether its okay to continue
- */
-async function step(event, emitter, req, res, next) {
-  let status = EventEmitter.STATUS_OK;
-
-  try {
-    //emit a connect event
-    status = await emitter.emit(event, req, res);
-  } catch(err) {
-    //if there is an error
-    next(err);
-    //dont continue
-    return false;
-  }
-
-  //if the status was incomplete (308)
-  return status !== EventEmitter.STATUS_INCOMPLETE;
-}
+createRouter.helpers = helpers;
 
 //adapter
 module.exports = createRouter;
