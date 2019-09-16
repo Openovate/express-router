@@ -92,7 +92,7 @@ function createRouter(config = {}) {
       res.write(res.content.get().toString());
       res.end();
 
-      await step('response', router, req, res, next)
+      await step('response', router, req, res, next);
       //do nothing else
       return;
     }
@@ -109,7 +109,9 @@ function createRouter(config = {}) {
       res.write(JSON.stringify(rest, null, 2));
       res.end();
 
-      await step('response', router, req, res, next)
+      await step('response', router, req, res, next);
+      //do nothing else
+      return;
     }
 
     //we are here?
