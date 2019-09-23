@@ -4,6 +4,6 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "@openovate/express-router": "^0.0.11"
+    "@openovate/express-router": "^0.0.12"
   }
 }

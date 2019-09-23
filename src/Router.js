@@ -31,7 +31,7 @@ class Router extends EventEmitter {
     }
 
     //if priority is a function or there are more than 3 arguments
-    if (typeof priority === 'function' || arguments.length > 4) {
+    if (typeof priority !== 'number' || arguments.length > 4) {
       //make sure we have a numerical priority
       priority = 0;
       //get the args
