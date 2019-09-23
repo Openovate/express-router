@@ -1,5 +1,9 @@
 const Router = require('../src');
 
+process.on('unhandledRejection', (reason, p) => {
+  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+});
+
 test('callable test', () => {
   const router = Router();
   expect(typeof router.use).toBe('function');

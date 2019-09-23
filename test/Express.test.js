@@ -4,6 +4,10 @@ const express = require('express');
 
 const Router = require('../src');
 
+process.on('unhandledRejection', (reason, p) => {
+  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+});
+
 test('express test', async() => {
   const router = Router();
 
@@ -27,10 +31,10 @@ test('express test', async() => {
   app.use(router);
 
   const server = http.createServer(app);
-  server.listen(3000);
+  server.listen(3005);
 
 
-  const response = await fetch('http://127.0.0.1:3000/some/path?lets=dothis', {
+  const response = await fetch('http://127.0.0.1:3005/some/path?lets=dothis', {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     mode: 'cors', // no-cors, cors, *same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -65,9 +69,9 @@ test('rest test', async() => {
   app.use(router);
 
   const server = http.createServer(app);
-  server.listen(3000);
+  server.listen(3006);
 
-  const response = await fetch('http://127.0.0.1:3000/some/path?lets=dothis', {
+  const response = await fetch('http://127.0.0.1:3006/some/path?lets=dothis', {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     mode: 'cors', // no-cors, cors, *same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -106,9 +110,9 @@ test('content test', async() => {
   app.use(router);
 
   const server = http.createServer(app);
-  server.listen(3000);
+  server.listen(3007);
 
-  const response = await fetch('http://127.0.0.1:3000/some/path');
+  const response = await fetch('http://127.0.0.1:3007/some/path');
 
   expect(await response.text()).toBe('Hello World');
 });
@@ -140,9 +144,9 @@ test('error handling test', async() => {
   })
 
   const server = http.createServer(app);
-  server.listen(3000);
+  server.listen(3008);
 
-  const response = await fetch('http://127.0.0.1:3000/some/path?lets=dothis', {
+  const response = await fetch('http://127.0.0.1:3008/some/path?lets=dothis', {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     mode: 'cors', // no-cors, cors, *same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -181,9 +185,9 @@ test('request test', async() => {
   app.use(router);
 
   const server = http.createServer(app);
-  server.listen(3000);
+  server.listen(3009);
 
-  const response = await fetch('http://127.0.0.1:3000/some/path?something=isdone');
+  const response = await fetch('http://127.0.0.1:3009/some/path?something=isdone');
   const rest = JSON.parse(await response.text());
   expect(rest.results).toBe('isdone');
 });

@@ -1,6 +1,6 @@
 {
   "name": "@openovate/express-router",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Express routing with priority settings.",
   "repository": {
     "type": "git",
@@ -21,7 +21,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@openovate/jsm": "^0.0.3",
+    "@openovate/jsm": "^0.0.12",
     "formidable": "^1.2.1",
     "methods": "^1.1.2",
     "path-to-regexp": "^3.1.0",

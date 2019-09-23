@@ -1,4 +1,5 @@
 const EventEmitter = require('./EventEmitter');
+const Route = require('./Route');
 const Router = require('./Router');
 
 const IncomingMessage = require('./http/IncomingMessage');
@@ -269,9 +270,14 @@ createRouter.ContentTrait = ContentTrait;
 createRouter.RestTrait = RestTrait;
 createRouter.ServerTrait = ServerTrait;
 createRouter.StageTrait = StageTrait;
-createRouter.EventEmitter = EventEmitter;
+
 createRouter.IncomingMessage = IncomingMessage;
 createRouter.ServerResponse = ServerResponse;
+
+createRouter.EventEmitter = EventEmitter;
+createRouter.Route = Route;
+createRouter.Router = Router;
+
 createRouter.helpers = helpers;
 
 //adapter

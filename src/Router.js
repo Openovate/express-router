@@ -26,7 +26,7 @@ class Router extends EventEmitter {
       //loop through each callback
       callback.forEach(callback => {
         //call it in a singular way
-        this.on(method, callback, priority);
+        this.route(method, path, callback, priority);
       })
     }
 
@@ -49,11 +49,8 @@ class Router extends EventEmitter {
           return;
         }
 
-        //if it's a function
-        if (typeof callback === 'function') {
-          //call it in a singular way
-          this.on(method, callback, priority);
-        }
+        //call it in a singular way
+        this.route(method, path, callback, priority);
       });
     }
 

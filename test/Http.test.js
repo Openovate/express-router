@@ -3,6 +3,10 @@ const fetch = require('node-fetch');
 
 const Router = require('../src');
 
+process.on('unhandledRejection', (reason, p) => {
+  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+});
+
 test('http test', async() => {
   const router = Router();
 
@@ -57,9 +61,9 @@ test('rest test', async() => {
 
   //start http server
   const server = http.createServer(router);
-  server.listen(3000);
+  server.listen(3001);
 
-  const response = await fetch('http://127.0.0.1:3000/some/path?lets=dothis', {
+  const response = await fetch('http://127.0.0.1:3001/some/path?lets=dothis', {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     mode: 'cors', // no-cors, cors, *same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -95,9 +99,9 @@ test('content test', async() => {
 
   //start http server
   const server = http.createServer(router);
-  server.listen(3000);
+  server.listen(3002);
 
-  const response = await fetch('http://127.0.0.1:3000/some/path');
+  const response = await fetch('http://127.0.0.1:3002/some/path');
 
   expect(await response.text()).toBe('Hello World');
 });
@@ -127,9 +131,9 @@ test('error handling test', async() => {
 
   //start server
   const server = http.createServer(router);
-  server.listen(3000);
+  server.listen(3003);
 
-  const response = await fetch('http://127.0.0.1:3000/some/path?lets=dothis', {
+  const response = await fetch('http://127.0.0.1:3003/some/path?lets=dothis', {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     mode: 'cors', // no-cors, cors, *same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -165,9 +169,9 @@ test('request test', async() => {
 
   //start http server
   const server = http.createServer(router);
-  server.listen(3000);
+  server.listen(3004);
 
-  const response = await fetch('http://127.0.0.1:3000/some/path?something=isdone');
+  const response = await fetch('http://127.0.0.1:3004/some/path?something=isdone');
   const rest = JSON.parse(await response.text());
   expect(rest.results).toBe('isdone');
 });
