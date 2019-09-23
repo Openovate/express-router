@@ -1,4 +1,4 @@
-# Vanilla Example
+# Express Example
 
 ## Install
 

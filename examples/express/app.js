@@ -1,6 +1,8 @@
 const http = require('http');
+const express = require('express');
 const Router = require('@openovate/express-router');
 
+const app = express();
 const router = Router();
 
 router.get('/', (req, res) => {
@@ -16,6 +18,9 @@ router.on('get id', (req, res) => {
   res.rest.set('results', id);
 });
 
+//bind router to express
+app.use(router);
+
 //start http server
-const server = http.createServer(router);
+const server = http.createServer(app);
 server.listen(3000);

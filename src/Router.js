@@ -60,6 +60,12 @@ class Router extends EventEmitter {
     if (typeof callback !== 'function') {
       //we are not going to await for this...
       this.emit('resolve', method, path, callback, priority);
+      //NOTE: This does not solve for class vs function. Babel can transform
+      // a react function to commonjs function/prototype. In that there is no
+      // concrete way to tell the difference. Any bright ideas are welcome..
+      // see:
+      // https://overreacted.io/how-does-react-tell-a-class-from-a-function/
+
       return this;
     }
 
@@ -85,7 +91,7 @@ class Router extends EventEmitter {
       event = path.toString().replace('/^', '/^' + method + "\\s");
     }
 
-    this.on(event, (req, ...args) => {
+    this.on(event, async(req, ...args) => {
       const route = this.event;
       const variables = [];
       const parameters = {};
@@ -122,7 +128,7 @@ class Router extends EventEmitter {
         req.stage.set(parameters);
       }
 
-      return callback(req, ...args);
+      return await callback(req, ...args);
     }, priority);
 
     return this;

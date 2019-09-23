@@ -27,6 +27,32 @@ app.use(router);
 app.listen(3000);
 ```
 
+The basic route can be formed in several ways.
+
+```js
+router.route('/').get((req, res) => {
+  res.send('Hello World');
+});
+
+// ... or ...
+
+router.get('/', (req, res) => {
+  res.send('Hello World');
+});
+
+// ... both above actually calls ...
+
+router.route('get', '/', (req, res) => {
+  res.send('Hello World');
+});
+
+// ... and that actually calls ...
+
+router.on('GET /', (req, res) => {
+  res.send('Hello World');
+});
+```
+
 ### Async/Await
 
 You can use async callbacks now it will still properly order by when it was defined.
