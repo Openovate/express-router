@@ -1,0 +1,11 @@
+{
+  "description": "Express routing with priority settings.",
+  "license": "MIT",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "@openovate/express-router": "^0.0.9"
+  }
+}

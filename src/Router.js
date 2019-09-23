@@ -116,6 +116,12 @@ class Router extends EventEmitter {
         parameters
       };
 
+      //if there's a stage
+      if (req.stage) {
+        //add the URL parameters
+        req.stage.set(parameters);
+      }
+
       return callback(req, ...args);
     }, priority);
 
