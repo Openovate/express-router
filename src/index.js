@@ -11,6 +11,13 @@ const ServerTrait = require('./payload/server');
 const StageTrait = require('./payload/stage');
 
 function createRouter(config = {}) {
+  const {
+    helpers,
+    Router,
+    IncomingMessage,
+    ServerResponse
+  } = createRouter;
+
   //merge config with defaults
   config = Object.assign({
     content: true,
@@ -215,25 +222,25 @@ const helpers = {
     //if they want content trait
     if (config.content) {
       //add content to res
-      ContentTrait(req, res)
+      createRouter.ContentTrait(req, res)
     }
 
     //if they want rest trait
     if (config.rest) {
       //add rest to res
-      RestTrait(req, res)
+      createRouter.RestTrait(req, res)
     }
 
     //if they want server trait
     if (config.server) {
       //add server to req
-      ServerTrait(req, res)
+      createRouter.ServerTrait(req, res)
     }
 
     //if they want stage trait
     if (config.stage) {
       //add stage to req
-      await StageTrait(req, res)
+      await createRouter.StageTrait(req, res)
     }
   },
 
@@ -249,7 +256,7 @@ const helpers = {
    * @return {Boolean} whether its okay to continue
    */
   async step(event, emitter, req, res, next) {
-    let status = EventEmitter.STATUS_OK;
+    let status = createRouter.EventEmitter.STATUS_OK;
 
     try {
       //emit a connect event
@@ -262,7 +269,7 @@ const helpers = {
     }
 
     //if the status was incomplete (308)
-    return status !== EventEmitter.STATUS_INCOMPLETE;
+    return status !== createRouter.EventEmitter.STATUS_INCOMPLETE;
   }
 };
 
