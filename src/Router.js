@@ -55,6 +55,16 @@ class Router extends EventEmitter {
     }
 
     method = method.toUpperCase();
+
+    //if callback is not a function
+    if (typeof callback !== 'function') {
+      //we are not going to await for this...
+      this.emit('resolve', method, path, callback, priority);
+      return this;
+    }
+
+    //if we are here then we can assume that callback is a function
+
     if (method === 'ALL') {
       method = '[a-zA-Z0-9\-]+';
     }
