@@ -4,7 +4,7 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "@openovate/express-router": "^0.0.10",
+    "@openovate/express-router": "^0.0.11",
     "@babel/core": "^7.6.0",
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/plugin-transform-react-jsx": "^7.3.0",

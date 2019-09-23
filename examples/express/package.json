@@ -5,6 +5,6 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "@openovate/express-router": "^0.0.10"
+    "@openovate/express-router": "^0.0.11"
   }
 }
