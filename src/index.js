@@ -41,7 +41,9 @@ function createRouter(config = {}) {
     if (typeof next === 'undefined') {
       //make a next that handles errors
       next = (err) => {
-        router.emit('error', err, req, res);
+        if (err) {
+          router.emit('error', err, req, res);
+        }
       }
     }
 
@@ -67,13 +69,13 @@ function createRouter(config = {}) {
     //trigger request
     if (!await helpers.step('request', router, req, res, next)) {
       //if the request exits, then stop
-      return;
+      return next();
     }
 
     //trigger main event
     if (!await helpers.step(event, router, req, res, next)) {
       //if the request exits, then stop
-      return;
+      return next();
     }
 
     //interpret
@@ -82,7 +84,7 @@ function createRouter(config = {}) {
     if (res._headerSent) {
       await helpers.step('response', router, req, res, next);
       //do nothing else
-      return;
+      return next();
     }
 
     //content > rest
@@ -110,7 +112,7 @@ function createRouter(config = {}) {
 
       await helpers.step('response', router, req, res, next);
       //do nothing else
-      return;
+      return next();
     }
 
     //if there is rest
@@ -127,12 +129,13 @@ function createRouter(config = {}) {
 
       await helpers.step('response', router, req, res, next);
       //do nothing else
-      return;
+      return next();
     }
 
     //we are here?
     //then let it stall like how http works anyways
     // also dont trigger response since it did not actually respond.
+    return next();
   }
 
   //merge router methods
