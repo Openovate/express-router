@@ -26,13 +26,18 @@ test('express test', async() => {
     server.close();
   });
 
+  let used = false;
+  router.use((req, res, next) => {
+    used = true;
+    next();
+  });
+
   //start express
   const app = express();
   app.use(router);
 
   const server = http.createServer(app);
   server.listen(3005);
-
 
   const response = await fetch('http://127.0.0.1:3005/some/path?lets=dothis', {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -49,6 +54,7 @@ test('express test', async() => {
   });
 
   expect(await response.text()).toBe('Hello World');
+  expect(used).toBe(true);
 });
 
 test('rest test', async() => {

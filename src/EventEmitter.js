@@ -2,7 +2,11 @@ const http = require('http')
 const IncomingMessage = require('./http/IncomingMessage');
 const ServerResponse = require('./http/ServerResponse');
 
-const { EventEmitter: EventEmitterJsm } = require('@openovate/jsm');
+const {
+  reflect,
+  Exception,
+  EventEmitter: EventEmitterJsm
+} = require('@openovate/jsm');
 
 class EventEmitter extends EventEmitterJsm {
   constructor() {
@@ -52,7 +56,27 @@ class EventEmitter extends EventEmitterJsm {
       return this;
     }
 
-    //anything else?
+    //if the callback is a function
+    if (typeof callback === 'function') {
+      //if req, res, next (legacy)
+      if (reflect(callback).getArgumentNames().length === 3) {
+        const original = callback;
+        callback = (req, res) => {
+          //transform to async function
+          return new Promise(resolve => {
+            original(req, res, function(error = null) {
+              if (error) {
+                throw Exception.for(error);
+              }
+
+              resolve();
+            });
+          });
+        };
+      }
+
+      this.on('request', callback);
+    }
 
     return this;
   }

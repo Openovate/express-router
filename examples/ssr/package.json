@@ -14,7 +14,7 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "@babel/register": "^7.5.5",
-    "@openovate/express-router": "^0.0.14",
+    "@openovate/express-router": "^0.0.15",
     "babel-loader": "^8.0.6",
     "express": "^4.17.1",
     "history": "^4.10.1",

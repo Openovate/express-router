@@ -25,6 +25,12 @@ test('http test', async() => {
     server.close();
   });
 
+  let used = false;
+  router.use((req, res, next) => {
+    used = true;
+    next();
+  });
+
   //start http server
   const server = http.createServer(router);
   server.listen(3000);
@@ -44,6 +50,7 @@ test('http test', async() => {
   });
 
   expect(await response.text()).toBe('Hello World');
+  expect(used).toBe(true);
 });
 
 test('rest test', async() => {
