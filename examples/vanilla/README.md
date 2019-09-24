@@ -7,5 +7,5 @@ $ npm i
 $ npm start
 ```
 
-In your browser, visit `http://127.0.0.1/` and `http://127.0.0.1/product/1` to
-see what happens.
+In your browser, visit `http://127.0.0.1:3000/` and
+`http://127.0.0.1:3000/product/1` to see what happens.
