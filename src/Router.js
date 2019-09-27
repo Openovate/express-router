@@ -4,6 +4,8 @@ const pathToRegexp = require('path-to-regexp');
 const EventEmitter = require('./EventEmitter');
 const Route = require('./Route');
 
+const { reflect } = require("@openovate/jsm");
+
 class Router extends EventEmitter {
   /**
    * Listens to the path and method
@@ -57,7 +59,7 @@ class Router extends EventEmitter {
     method = method.toUpperCase();
 
     //if callback is not a function
-    if (typeof callback !== 'function') {
+    if (typeof callback !== 'function' || reflect(callback).isClass()) {
       //we are not going to await for this...
       this.emit('resolve', method, path, callback, priority);
       //NOTE: This does not solve for class vs function. Babel can transform
