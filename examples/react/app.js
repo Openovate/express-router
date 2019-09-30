@@ -17,13 +17,13 @@ router.get('/', (req, res) => {
   res.rest.set('results', 'title', 'Home Page');
 });
 
-router.get('/', { component: Home });
+router.get('/', Home);
 
 router.get('/product/:id', async (req, res) => {
   await router.emit('get id', req, res);
 });
 
-router.get('/product/:id', { component: Product });
+router.get('/product/:id', Product);
 
 router.on('get id', (req, res) => {
   const id = req.stage.get('id');

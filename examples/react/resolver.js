@@ -4,12 +4,10 @@ const { renderToNodeStream } = require('react-dom/server');
 module.exports = (router) => {
   router.on('resolve', (method, path, callback, priority) => {
     //if callback is not a react thing...
-    if (!callback.component || !isReact(callback.component)) {
+    if (!isReactComponent(callback)) {
       //do nothing
       return;
     }
-
-    callback = callback.component;
 
     //add a proper route
     router.route(method, path, (req, res) => {
