@@ -9,13 +9,6 @@ const {
 } = require('@openovate/jsm');
 
 class EventEmitter extends EventEmitterJsm {
-  constructor() {
-    super();
-    this.QueueInterface = EventEmitter.QueueInterface;
-    this.RequestInterface = EventEmitter.RequestInterface;
-    this.ResponseInterface = EventEmitter.ResponseInterface;
-  }
-
   /**
    * Shortcut for middleware
    *
@@ -50,7 +43,7 @@ class EventEmitter extends EventEmitterJsm {
         });
 
         //lastly link the metas
-        callback.meta = this.meta;
+        callback.event = this.event;
       });
 
       return this;
@@ -90,7 +83,7 @@ class EventEmitter extends EventEmitterJsm {
       }
 
       //make a request
-      req = new this.RequestInterface;
+      req = new IncomingMessage;
       if (req.stage) {
         req.stage.set(data);
       }
@@ -99,7 +92,7 @@ class EventEmitter extends EventEmitterJsm {
     //if its not a response
     if (!(res instanceof http.ServerResponse)) {
       //make a response
-      res = new this.ResponseInterface(req);
+      res = new ServerResponse(req);
     }
 
     await this.emit(event, req, res);
@@ -116,9 +109,5 @@ class EventEmitter extends EventEmitterJsm {
 EventEmitter.STATUS_OK = EventEmitterJsm.STATUS_OK;
 EventEmitter.STATUS_NOT_FOUND = EventEmitterJsm.STATUS_NOT_FOUND;
 EventEmitter.STATUS_INCOMPLETE = EventEmitterJsm.STATUS_INCOMPLETE;
-
-EventEmitter.QueueInterface = EventEmitterJsm.QueueInterface;
-EventEmitter.RequestInterface = IncomingMessage
-EventEmitter.ResponseInterface = ServerResponse;
 
 module.exports = EventEmitter;

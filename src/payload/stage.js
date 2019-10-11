@@ -26,7 +26,8 @@ function getPost(req) {
           .replace(/\]\[/g, '.')
           .replace('[', '.')
           .replace(/\[/g, '')
-          .replace(/\]/g, '');
+          .replace(/\]/g, '')
+          .split('.');
 
         //if the field value is not an array
         if (!Array.isArray(fields[name])) {
@@ -37,7 +38,7 @@ function getPost(req) {
         //now loop through each value
         fields[name].forEach(value => {
           //and set the value
-          body.setDot(path, value);
+          body.set(...path, value);
         });
       });
 
